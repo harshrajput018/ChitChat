@@ -184,23 +184,22 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
         </div>
       </div>
 
-      {dummyConversations.map((conversation) => (
+      {allusers.map((conversation) => (
         <div
-          key={conversation.id}
-          className={`conversation ${selectedConversation === conversation.id ? 'active' : ''}`}
+          key={conversation._id}
+          className={`conversation ${selectedConversation === conversation._id ? 'active' : ''}`}
           onClick={() => {
             localStorage.setItem('chatWindow', 'true');
             localStorage.setItem('freinds', 'false');
 
-            onConversationSelect(conversation.id);
+            onConversationSelect(conversation._id);
           }}
         >
           <div className="profile-pic">
-            <img src={conversation.profilePic} alt={`Profile of ${conversation.name}`} />
+            <img src='https://www.imagediamond.com/blog/wp-content/uploads/2020/06/cartoon-boy-images-4.jpg' alt={`Profile of ${conversation.name}`} />
           </div>
           <div className="conversation-info">
-            <h4 className="name">{conversation.name}</h4>
-            <p className="last-message">{conversation.messages[0]?.text}</p>
+            <h4 className="name">{conversation.username}</h4>
           </div>
         </div>
       ))}

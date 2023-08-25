@@ -3,8 +3,11 @@ import io from 'socket.io-client'
 import '../styles/ChatWindow.css'; // Update with the correct path for CSS // Update the path accordingly
 
 const ChatWindow = ({ conversationId }) => {
+
+  console.log(conversationId)  
+
   const [newMessage, setNewMessage] = useState('');
-  const [conversation, setConversation] = useState(null);
+  const [messages, setConversation] = useState(null);
   const messageListRef = useRef(null);
   const [dummyConversations,setdc] = useState([
     {
@@ -63,49 +66,54 @@ const ChatWindow = ({ conversationId }) => {
     // Add more conversations here
 ])
 
-const [newReceivedMessage, setNewReceivedMessage]= useState({
 
-     id: 1, sender: 'John Doe', text: 'Hey, how are you?', timestamp: '10:30 AM' 
-
-});
-  
 useEffect(() => {
-    const selectedConversation = dummyConversations.find(conv => conv.id === conversationId);
-    setConversation(selectedConversation);
+
+    fetch('http://localhost:8002',{
+        headers:{
+            from: localStorage.getItem('token'),
+            to: conversationId
+        }
+    }).then(res=>res.json()).then(res=>{
+
+        setConversation(res.msgs);
+        
+    });
+
   }, [conversationId]); 
   
     
     // Establish socket connection
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        console.log('ndfhhd')
-        const socket = io('http://localhost:7001',{
-            auth: {
-              token: localStorage.getItem('token') // Replace with the actual token
-            }}) // Replace with your server URL
+    //     console.log('ndfhhd')
+    //     const socket = io('http://localhost:7001',{
+    //         auth: {
+    //           token: localStorage.getItem('token') // Replace with the actual token
+    //         }}) // Replace with your server URL
     
-        socket.on('send', (message) => {
-          // Handle the incoming message here
-          const newMessageObj = {
-            id: conversation.messages.length + 1,
-            sender: 'John Doe',
-            text: message.content,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          };
+    //     socket.on('send', (message) => {
+    //       // Handle the incoming message here
+    //       const newMessageObj = {
+    //         id: conversation.messages.length + 1,
+    //         sender: 'John Doe',
+    //         text: message.content,
+    //         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    //       };
       
-          const updatedConversation = {
-            ...conversation,
-            messages: [...conversation.messages, newMessageObj],
-          };
+    //       const updatedConversation = {
+    //         ...conversation,
+    //         messages: [...conversation.messages, newMessageObj],
+    //       };
       
-          setConversation(updatedConversation);
+    //       setConversation(updatedConversation);
           
-          console.log('Received message:', message);
-        });
+    //       console.log('Received message:', message);
+    //     });
     
         
-      }, []);
+    //   }, []);
    
     
   
@@ -126,25 +134,41 @@ useEffect(() => {
 
     socket.emit('send',{fromtoken: localStorage.getItem('token'), to: '64e2a14519e5c02dcad928d4', content:newMessage, time: new Date().toLocaleTimeString()
 })
+
+    fetch('http://localhost:8001',{
+
+    method:"POST",
+    headers: {
+        'Content-Type': 'application/json',
+    },
+
+    body:JSON.stringify({
+        to: conversationId,
+        from : localStorage.getItem('token'),
+        content: newMessage
+    })
+
+
+    }).then(res=>res.json()).then(res=>console.log(res));
   
     // Event listener for receiving messages
     
   
 
-    const newMessageObj = {
-      id: conversation.messages.length + 1,
-      sender: 'You',
-      text: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
+    // const newMessageObj = {
+    //   id: conversation.messages.length + 1,
+    //   sender: 'You',
+    //   text: newMessage,
+    //   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    // };
 
-    const updatedConversation = {
-      ...conversation,
-      messages: [...conversation.messages, newMessageObj],
-    };
+    // const updatedConversation = {
+    //   ...conversation,
+    //   messages: [...conversation.messages, newMessageObj],
+    // };
 
-    setConversation(updatedConversation);
-    setNewMessage('');
+    // setConversation(updatedConversation);
+    // setNewMessage('');
 
     // Scroll to the bottom of the message list after a short delay to ensure rendering
     setTimeout(() => {
@@ -155,20 +179,20 @@ useEffect(() => {
     }, 100); // Adjust the delay as needed
   };
 
-  if (!conversation) {
-    return <div className="chat-window">Loading...</div>;
-  }
+//   if (!conversation) {
+//     return <div className="chat-window">Loading...</div>;
+//   }
 
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <h2 className="chat-title">{conversation.name}</h2>
+        {/* <h2 className="chat-title">{conversation.name}</h2> */}
       </div>
       <div className="message-list" ref={messageListRef}>
-        {conversation.messages.map(message => (
-          <div key={message.id} className={`message ${message.sender === 'You' ? 'sent' : 'received'}`}>
+        { messages && messages.map(message => (
+          <div key={message._id} className={`message ${message.sender === 'You' ? 'sent' : 'received'}`}>
             <div className="message-content">
-              <p className="message-text">{message.text}</p>
+              <p className="message-text">{message.content}</p>
               <p className="message-timestamp">{message.timestamp}</p>
             </div>
           </div>
