@@ -6,6 +6,8 @@ const ChatWindow = ({ conversationId }) => {
 
   console.log(conversationId)  
 
+  const [count,setcount] = useState(0);
+
   const [newMessage, setNewMessage] = useState('');
   const [messages, setConversation] = useState(null);
   const messageListRef = useRef(null);
@@ -85,41 +87,32 @@ useEffect(() => {
     
     // Establish socket connection
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     console.log('ndfhhd')
-    //     const socket = io('http://localhost:7001',{
-    //         auth: {
-    //           token: localStorage.getItem('token') // Replace with the actual token
-    //         }}) // Replace with your server URL
+        console.log('ndfhhd')
+        const socket = io('http://localhost:7001',{
+            auth: {
+              token: localStorage.getItem('token'),
+              // Replace with the actual token
+            }}) // Replace with your server URL
     
-    //     socket.on('send', (message) => {
-    //       // Handle the incoming message here
-    //       const newMessageObj = {
-    //         id: conversation.messages.length + 1,
-    //         sender: 'John Doe',
-    //         text: message.content,
-    //         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    //       };
-      
-    //       const updatedConversation = {
-    //         ...conversation,
-    //         messages: [...conversation.messages, newMessageObj],
-    //       };
-      
-    //       setConversation(updatedConversation);
-          
-    //       console.log('Received message:', message);
-    //     });
-    
+       socket.on('send',(res)=>{
+
+        console.log(res)
+        setConversation(res.msgs);
+       })
+
+       return ()=>{
+        socket.disconnect();
+       };
         
-    //   }, []);
+      }, [])
    
     
   
     
     
-  // Empty dependency array to run this effect only once
+//   Empty dependency array to run this effect only once
   
 
   
@@ -129,42 +122,22 @@ useEffect(() => {
 
     const socket = io('http://localhost:7001',{
             auth: {
-              token: localStorage.getItem('token') // Replace with the actual token
+              token: localStorage.getItem('token'),
+              to: conversationId // Replace with the actual token
             }})
 
-    socket.emit('send',{fromtoken: localStorage.getItem('token'), to: '64e2a14519e5c02dcad928d4', content:newMessage, time: new Date().toLocaleTimeString()
+    socket.emit('send',{fromtoken: localStorage.getItem('token'), to: conversationId, content:newMessage, time: new Date().toLocaleTimeString()
 })
 
-    fetch('http://localhost:8001',{
+socket.on('send',(res)=>{
 
-    method:"POST",
-    headers: {
-        'Content-Type': 'application/json',
-    },
-
-    body:JSON.stringify({
-        to: conversationId,
-        from : localStorage.getItem('token'),
-        content: newMessage
-    })
-
-
-    }).then(res=>res.json()).then(res=>console.log(res)).then(
-        setTimeout(()=>{
-            fetch('http://localhost:8002',{
-        headers:{
-            from: localStorage.getItem('token'),
-            to: conversationId
-        }
-    }).then(res=>res.json()).then(res=>{
-
-        setConversation(res.msgs);
-
-        console.log(res.msgs)
+    console.log(res)
+    setConversation(res.msgs);
+   })
         
-    })}
-        ,100))
-        
+   
+
+   
   
     // Event listener for receiving messages
     
@@ -189,6 +162,17 @@ useEffect(() => {
 
     // Scroll to the bottom of the message list after a short delay to ensure rendering
     setTimeout(() => {
+        fetch('http://localhost:8002',{
+        headers:{
+            from: localStorage.getItem('token'),
+            to: conversationId
+        }
+    }).then(res=>res.json()).then(res=>{
+
+        console.log(res);
+        setConversation(res.msgs);
+        
+    });
       const messageList = messageListRef.current;
       if (messageList) {
         messageList.scrollTop = messageList.scrollHeight;
