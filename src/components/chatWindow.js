@@ -149,7 +149,22 @@ useEffect(() => {
     })
 
 
-    }).then(res=>res.json()).then(res=>console.log(res));
+    }).then(res=>res.json()).then(res=>console.log(res)).then(
+        setTimeout(()=>{
+            fetch('http://localhost:8002',{
+        headers:{
+            from: localStorage.getItem('token'),
+            to: conversationId
+        }
+    }).then(res=>res.json()).then(res=>{
+
+        setConversation(res.msgs);
+
+        console.log(res.msgs)
+        
+    })}
+        ,100))
+        
   
     // Event listener for receiving messages
     
@@ -168,7 +183,9 @@ useEffect(() => {
     // };
 
     // setConversation(updatedConversation);
-    // setNewMessage('');
+    setNewMessage('');
+
+    
 
     // Scroll to the bottom of the message list after a short delay to ensure rendering
     setTimeout(() => {
@@ -190,7 +207,7 @@ useEffect(() => {
       </div>
       <div className="message-list" ref={messageListRef}>
         { messages && messages.map(message => (
-          <div key={message._id} className={`message ${message.sender === 'You' ? 'sent' : 'received'}`}>
+          <div key={message._id} className={`message ${message.to === conversationId ? 'sent' : 'received'}`}>
             <div className="message-content">
               <p className="message-text">{message.content}</p>
               <p className="message-timestamp">{message.timestamp}</p>
