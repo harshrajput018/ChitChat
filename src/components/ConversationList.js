@@ -8,6 +8,7 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [allusers, setallusers] = useState([]);
+  const [all,setall] = useState([]);
 
   const [dummyConversations, setdc] = useState([
     {
@@ -76,11 +77,11 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
       setSearchResults([])
       return;
     }
-    const results = allusers.filter(conversation => {
-
+    const results = all.filter(conversation => {
       return conversation.username.toLowerCase().includes(searchQuery.toLowerCase())
     }
     );
+    console.log('results',results);
     setSearchResults(results);
 
 
@@ -93,8 +94,18 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
   }, [searchQuery])
 
   const handleSendRequest = (conversationId) => {
-    console.log(`Sending request to conversation with ID ${conversationId}`);
+    fetch('http://localhost:9000/request',{
+      method:'POST',
+      headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token : localStorage.getItem('token'), to:conversationId })
+      
+    })
   };
+
+  console.log('all',all)
+  console.log('allusers',allusers)
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -122,11 +133,23 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  const getFriends = ()=>{
+    fetch('http://localhost:9000/getfriends',{
+        headers:{
+            token: localStorage.getItem('token'),
+        }
+    }).then((res)=>res.json()).then(res=>setallusers(res.users))}
   // fetching all users for search
+
+  const getAllUsers = ()=>{
+
+    fetch('http://localhost:2001/allusers').then(res=>res.json()).then(res=>setall(res.allusers))
+
+  }
   useEffect(() => {
 
-    fetch('http://localhost:2001/allusers').then(res => res.json()).then(res => setallusers(res));
+    getFriends()
+    getAllUsers()
 
   }, [])
 
@@ -148,7 +171,10 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
         <div className="search-results">
           <h4>Search Results</h4>
           {searchResults.map((conversation) => (
+
+           
             <div key={conversation._id} className="search-result">
+              
               <div className="profile-pic">
                 <img src={'https://www.imagediamond.com/blog/wp-content/uploads/2020/06/cartoon-boy-images-4.jpg'} alt={`Profile of ${conversation.name}`} />
               </div>
@@ -164,7 +190,8 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
                   cursor: 'pointer',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                   transition: 'background-color 0.3s, transform 0.3s',
-                }} onClick={() => handleSendRequest(conversation.id)}>Send Request</button>
+                }} id='sendreq' onClick={() => {handleSendRequest(conversation._id)
+                }} >{ allusers.includes(conversation)?'Friend':'Send Request'}</button>
               </div>
             </div>
           ))}

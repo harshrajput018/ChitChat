@@ -11,6 +11,14 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    useEffect(()=>{
+        if(localStorage.getItem('token'))
+        {
+            navigate('/chat')
+        }
+    },[])
+   
+
     useEffect(() => {
         if (localStorage.getItem('logoutFlag') === 'true')
             setTimeout(() => {
