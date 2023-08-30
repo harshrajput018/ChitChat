@@ -45,7 +45,7 @@ const Login = () => {
         e.preventDefault();
 
         if (activeForm === 'signup')
-            fetch('http://localhost:2001/register', {
+            fetch('http://localhost:9000/allusers/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ const Login = () => {
             })
         else {
 
-            fetch('http://localhost:2001/login', {
+            fetch('http://localhost:9000/allusers/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

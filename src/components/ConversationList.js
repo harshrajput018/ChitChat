@@ -134,7 +134,7 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
     setIsMenuOpen(!isMenuOpen);
   };
   const getFriends = ()=>{
-    fetch('http://localhost:9000/getfriends',{
+    fetch('http://localhost:9000/friends/getfriends',{
         headers:{
             token: localStorage.getItem('token'),
         }
@@ -143,7 +143,7 @@ const ConversationList = ({ selectedConversation, onConversationSelect }) => {
 
   const getAllUsers = ()=>{
 
-    fetch('http://localhost:2001/allusers').then(res=>res.json()).then(res=>setall(res.allusers))
+    fetch('http://localhost:9000/allusers/allusers').then(res=>res.json()).then(res=>setall(res.allusers))
 
   }
   useEffect(() => {

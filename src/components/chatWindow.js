@@ -14,7 +14,7 @@ const ChatWindow = ({ conversationId }) => {
 
 useEffect(() => {
 
-    fetch('http://localhost:8002',{
+    fetch('http://localhost:9000/getchats',{
         headers:{
             from: localStorage.getItem('token'),
             to: conversationId
